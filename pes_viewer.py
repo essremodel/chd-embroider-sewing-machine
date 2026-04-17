@@ -211,7 +211,7 @@ def draw_metric_block(
 
 
 def export_stat_card(path: Path, stats: PesStats, preview_path: Path, output_path: Path) -> None:
-    card = vertical_gradient((1600, 980), "#08111b", "#10253a")
+    card = vertical_gradient((1600, 1020), "#08111b", "#10253a")
     add_glow(card, (80, 40, 700, 580), "#2A7DBF", 120)
     add_glow(card, (980, 180, 1520, 860), "#54C1EA", 100)
     add_glow(card, (1120, -120, 1660, 360), "#0B5D7D", 120)
@@ -220,10 +220,12 @@ def export_stat_card(path: Path, stats: PesStats, preview_path: Path, output_pat
     heading_font = load_font(58, bold=True)
     subhead_font = load_font(25)
     section_font = load_font(18, bold=True)
-    body_font = load_font(28)
-    metric_font = load_font(42, bold=True)
+    body_font = load_font(25)
+    metric_font = load_font(34, bold=True)
+    metric_font_small = load_font(29, bold=True)
     tiny_font = load_font(18)
     mono_font = load_font(22, mono=True)
+    title_font = load_font(40, bold=True)
 
     draw.text((84, 70), "Luxury Bath PES Viewer", font=heading_font, fill="#f5f9ff")
     draw.text((86, 144), "Local inspection snapshot generated from the embroidery file itself.", font=subhead_font, fill="#92a7c0")
@@ -238,41 +240,49 @@ def export_stat_card(path: Path, stats: PesStats, preview_path: Path, output_pat
         width, _ = draw_pill(draw, (next_x, chip_y), chip_text, fill=fill, outline=outline, text_fill=text_fill, font=section_font)
         next_x += width + 16
 
-    panel = preview_panel(preview_path, (900, 560))
+    panel = preview_panel(preview_path, (900, 548))
     card.alpha_composite(panel, (82, 292))
 
-    draw.text((110, 878), "Viewer preview", font=section_font, fill="#74c2ff")
-    draw.text((110, 910), "Rendered locally from the `.pes` stitches using the repo's `pes_viewer.py` tool.", font=tiny_font, fill="#97a8bc")
+    draw.text((110, 866), "Viewer preview", font=section_font, fill="#74c2ff")
+    draw.text((110, 898), "Rendered locally from the `.pes` stitches using the repo's `pes_viewer.py` tool.", font=tiny_font, fill="#97a8bc")
 
-    info_left = 1028
+    info_left = 1020
     info_right = 1516
 
     title = path.stem.replace("_", " ")
-    draw.text((info_left, 300), title, font=load_font(42, bold=True), fill="#f4f8ff")
+    draw.text((info_left, 302), title, font=title_font, fill="#f4f8ff")
     draw.text((info_left, 352), path.name, font=mono_font, fill="#8ea4bf")
 
     metric_boxes = [
-        ("Stitches", f"{stats.stitches:,}", "#7dc4ff"),
-        ("Size", f"{stats.width_mm:.1f} × {stats.height_mm:.1f} mm", "#5fd3a0"),
-        ("Inches", f'{stats.width_in:.2f}" × {stats.height_in:.2f}"', "#ffcb6b"),
-        ("Colors", str(stats.colors), "#ff8c82"),
+        ("Stitches", f"{stats.stitches:,}", "#7dc4ff", metric_font),
+        ("Colors", str(stats.colors), "#ff8c82", metric_font),
+        ("Size (mm)", f"{stats.width_mm:.1f} × {stats.height_mm:.1f}", "#5fd3a0", metric_font_small),
+        ("Size (in)", f'{stats.width_in:.2f}" × {stats.height_in:.2f}"', "#ffcb6b", metric_font_small),
     ]
-    y = 420
-    for label, value, accent in metric_boxes:
-        draw_metric_block(card, (info_left, y, info_right, y + 132), label=label, value=value, accent=accent, value_font=metric_font, label_font=section_font)
-        y += 148
+
+    grid_boxes = [
+        (info_left, 420, info_left + 240, 540),
+        (info_left + 256, 420, info_right, 540),
+        (info_left, 556, info_left + 240, 676),
+        (info_left + 256, 556, info_right, 676),
+    ]
+    for (label, value, accent, value_font), box in zip(metric_boxes, grid_boxes):
+        draw_metric_block(card, box, label=label, value=value, accent=accent, value_font=value_font, label_font=section_font)
 
     fit5_text, fit5_color = fit_label(stats.fits_5x7)
     fit610_text, fit610_color = fit_label(stats.fits_6x10)
-    draw.text((info_left, 738), "Hoop fit", font=section_font, fill="#7e91aa")
-    draw_pill(draw, (info_left, 772), f"5x7: {fit5_text}", fill="#0f1722", outline=fit5_color, text_fill=fit5_color, font=body_font)
-    draw_pill(draw, (info_left, 834), f"6x10: {fit610_text}", fill="#0f1722", outline=fit610_color, text_fill=fit610_color, font=body_font)
+    draw.rounded_rectangle((info_left, 706, info_right, 828), radius=26, fill=(17, 22, 32, 230), outline=(58, 70, 90, 255), width=2)
+    draw.text((info_left + 24, 726), "HOOP COMPATIBILITY", font=section_font, fill="#7e91aa")
+    draw_pill(draw, (info_left + 24, 760), f"5x7: {fit5_text}", fill="#0f1722", outline=fit5_color, text_fill=fit5_color, font=body_font)
+    draw_pill(draw, (info_left + 220, 760), f"6x10: {fit610_text}", fill="#0f1722", outline=fit610_color, text_fill=fit610_color, font=body_font)
 
-    draw.text((info_left, 908), "Thread palette", font=section_font, fill="#7e91aa")
-    swatch_x = info_left
+    draw.rounded_rectangle((info_left, 848, info_right, 964), radius=26, fill=(17, 22, 32, 230), outline=(58, 70, 90, 255), width=2)
+    draw.text((info_left + 24, 868), "THREAD PALETTE", font=section_font, fill="#7e91aa")
+    swatch_x = info_left + 24
     for color in palette_for(stats):
-        draw.rounded_rectangle((swatch_x, 938, swatch_x + 62, 968), radius=15, fill=color, outline="#d5e5f7", width=2)
+        draw.rounded_rectangle((swatch_x, 908, swatch_x + 62, 938), radius=15, fill=color, outline="#d5e5f7", width=2)
         swatch_x += 82
+    draw.text((info_left + 24, 942), f"{stats.colors} thread stop{'s' if stats.colors != 1 else ''} in the current export", font=tiny_font, fill="#97a8bc")
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     card.save(output_path)
@@ -296,20 +306,20 @@ def export_overview(cards: list[tuple[Path, PesStats, Path]], output_path: Path)
     draw_pill(draw, (88, 218), "Public README asset", fill="#13293f", outline="#3671a6", text_fill="#b8d9ff", font=pill_font)
     draw_pill(draw, (312, 218), "USB-ready PES files", fill="#102b23", outline="#2f7a64", text_fill="#b5ead5", font=pill_font)
 
-    positions = [(82, 308), (920, 308)]
+    positions = [(86, 320), (936, 320)]
     for (path, stats, card_path), (x, y) in zip(cards, positions):
         card = Image.open(card_path).convert("RGBA")
-        card = ImageOps.contain(card, (798, 720), Image.Resampling.LANCZOS)
+        card = ImageOps.contain(card, (780, 700), Image.Resampling.LANCZOS)
         shadow = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
         shadow_draw = ImageDraw.Draw(shadow)
         shadow_draw.rounded_rectangle((x + 10, y + 18, x + card.width + 10, y + card.height + 18), radius=36, fill=(0, 0, 0, 105))
         canvas.alpha_composite(shadow.filter(ImageFilter.GaussianBlur(26)))
         canvas.alpha_composite(card, (x, y))
-        draw.rounded_rectangle((x + 22, y + 24, x + 220, y + 76), radius=26, fill=(7, 17, 28, 220), outline=(72, 134, 196, 255), width=2)
-        draw.text((x + 46, y + 38), path.stem, font=card_title_font, fill="#e7f0fb")
-        draw.text((x + 26, y + card.height + 26), f"{stats.stitches:,} stitches  •  {stats.colors} colors  •  {stats.width_in:.2f}\" wide", font=meta_font, fill="#dce9f7")
+        label = "Single-color export" if stats.colors == 1 else "Three-color export"
+        draw.text((x + 6, y + card.height + 24), path.name, font=card_title_font, fill="#f1f7ff")
+        draw.text((x + 6, y + card.height + 66), f"{label}  •  {stats.stitches:,} stitches  •  {stats.width_in:.2f}\" wide", font=meta_font, fill="#dce9f7")
 
-    draw.text((90, 1088), "Generated with `./.venv/bin/python pes_viewer.py --export-readme-assets assets/readme`", font=small_font, fill="#8ea7c2")
+    draw.text((90, 1088), "Generated from the committed PES files with the repo's local viewer tooling.", font=small_font, fill="#8ea7c2")
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     canvas.save(output_path)
