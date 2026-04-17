@@ -1,0 +1,21 @@
+Luxury Bath embroidery export
+
+Files included:
+- LBATH1C.PES
+- LBATH3C.PES
+- luxbath_leftchest_1c.svg
+- luxbath_leftchest_3c.svg
+- LBATH1C_preview.png
+- LBATH3C_preview.png
+
+Current PES size:
+- 178.4 mm x 24.2 mm
+- about 7.02 in x 0.95 in
+
+Machine fit:
+- Fits Brother 6x10 hoop
+- Does not fit 5x7 hoop
+
+Stitch stats:
+- LBATH1C.PES: 3208 stitches, 1 color
+- LBATH3C.PES: 3218 stitches, 3 colors
