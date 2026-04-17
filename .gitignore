@@ -9,6 +9,7 @@ USB_SAVE/
 usb/
 build/
 err.txt
+*.rtfd/
 
 previews/*.png
 !previews/LBATH1C_preview.png
