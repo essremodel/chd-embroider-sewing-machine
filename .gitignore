@@ -1,0 +1,16 @@
+.DS_Store
+.venv/
+__pycache__/
+*.pyc
+
+Archive.zip
+Bathrooms/
+USB_SAVE/
+usb/
+build/
+err.txt
+
+previews/*.png
+!previews/LBATH1C_preview.png
+!previews/LBATH3C_preview.png
+previews/chd/
